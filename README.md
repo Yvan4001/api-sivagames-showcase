@@ -89,6 +89,25 @@ Notes:
 - **Transport**: Enforce TLS for all inbound/outbound traffic.
 - **Implementation note**: This repo provides `Utils/AESEncryption.cs` (CBC with IV prefix) and can be complemented with an AES-GCM helper if you prefer AEAD.
 
+### 🔐 Data Protection Implementation (AES-GCM)
+
+While OWASP ZAP validates transport security (TLS), internal data protection follows **NIST & PCI-DSS guidelines** for data at rest. Critical PII (Emails, Tokens) are encrypted before database insertion.
+
+**Implementation Pattern (C#):**
+```csharp
+// Example of the encryption contract used in Services
+public interface IAesEncryption
+{
+    // Uses AES-256 (GCM or CBC with HMAC)
+    string Encrypt(string plainText);
+    string Decrypt(string cipherText);
+}
+
+// Data is never stored in plain text in the SQL Database
+// User.EmailCipher = _aes.Encrypt("user@example.com");
+// User.Email = _aes.Decrypt(User.EmailCipher);
+```
+
 ---
 
 ## 🛡️ Security & Reliability
@@ -100,6 +119,7 @@ It has been audited using **OWASP ZAP** (Zed Attack Proxy) standard protocols.
 | :--- | :--- | :--- | :--- |
 | **Dynamic Analysis (DAST)** | OWASP ZAP Docker | ✅ **PASSED** (0 High, 0 Medium) | [View Audit Report](./docs/audits/SivaCore_Security_Audit_2026.pdf) |
 | **Encryption** | AES-GCM 256 | ✅ **Implemented** | N/A |
+| **Data at Rest** | AES-256 | ✅ **Implemented** | [View Code Sample](./src/Utils/AESEncryption.cs) |
 | **Headers** | HSTS, CSP, NoSniff | ✅ **Hardened** | N/A |
 
 > *"The automated audit confirms robust handling of SQL Injection, XSS, and broken access control vectors."*
