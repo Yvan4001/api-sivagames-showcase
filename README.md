@@ -3,6 +3,32 @@
 ## Overview
 This combined document merges architecture, security, and operational guidance for the SivaGames Web API: AES encryption, email sending, invoices, orders, payments (Stripe/PayPal), legal notices, and deployment tips. Use it as a single reference for developers, reviewers, and operators.
 
+```mermaid graph TD
+    subgraph "Client Layer"
+        User[Client / Frontend]
+    end
+
+    subgraph "API Layer (ASP.NET Core)"
+        Controller[Controllers] -->|Auth & Validation| Service[Services Layer]
+    end
+
+    subgraph "Business Logic & Security"
+        Service -->|AES Encryption| Utils[Utils / Crypto]
+        Service -->|Business Rules| Domain[Domain Entities]
+    end
+
+    subgraph "Data Access"
+        Service -->|Map DTO/Entity| Repo[Repository Layer]
+        Repo -->|EF Core| DB[(SQL Database)]
+    end
+
+    subgraph "External Infrastructure"
+        Service -.->|Webhook & API| Stripe[Stripe / PayPal]
+        Service -.->|SMTP| Email[Email Provider]
+    end
+
+    User -->|HTTPS/JWT| Controller
+```
 ---
 
 ## Table of Contents
